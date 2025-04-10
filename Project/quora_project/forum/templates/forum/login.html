@@ -1,0 +1,28 @@
+<!-- forum/templates/forum/login.html -->
+{% extends 'forum/base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}Login - Quora-like Platform{% endblock %}
+    <link rel="stylesheet" href="{% static 'forum/css/style.css' %}">
+    <script src="{% static 'forum/js/script.js' %}" defer></script>
+</head>
+{% block content %}
+<body>
+
+
+<div class="container">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+</div>
+
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends 'forum/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}{{ question.title }} - Quora-like Platform{% endblock %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    color: #007bff;
+}
+
+.answer {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+}
+
+.answer p {
+    margin: 10px 0;
+}
+
+.answer button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.answer button:hover {
+    background-color: #218838;
+}
+
+.answer button:disabled {
+    background-color: #6c757d;
+}
+
+.answer-form {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.answer-form textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+}
+
+.answer-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.answer-form button:hover {
+    background-color: #0056b3;
+}
+
+.like-count {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.login-msg {
+    color: #dc3545;
+    font-size: 14px;
+}
+
+
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
+}
+    </style>
+</head>
+{% block content %}
+<body>
+    <div class="container">
+        <h1>{{ question.title }}</h1>
+        <p><strong>Asked by:</strong> {{ question.author.username }}</p>
+        <p><strong>Description:</strong> {{ question.description }}</p>
+        
+       
+        <h2>Answers</h2>
+        {% for answer in question.answer_set.all %}
+            <div class="answer">
+                <p>{{ answer.content }}</p>
+                <p><strong>Answered by:</strong> {{ answer.author.username }}</p>
+
+                
+                <p>{{ answer.like_set.count }} Likes</p>
+
+                
+                {% if user.is_authenticated %}
+                    {% if answer.has_liked %}
+                        <button disabled>Liked</button>
+                    {% else %}
+                        
+                        <form action="{% url 'like_answer' answer_id=answer.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit">Like</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <p>Please log in to like answers.</p>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>No answers yet. Be the first to answer!</p>
+        {% endfor %}
+
+        
+        {% if user.is_authenticated %}
+            <h3>Your Answer</h3>
+            <form action="{% url 'answer_question' question_id=question.id %}" method="POST">
+                {% csrf_token %}
+                <textarea name="content" rows="4" cols="50" placeholder="Write your answer..."></textarea><br><br>
+                <button type="submit">Post Answer</button>
+            </form>
+        {% else %}
+            <p>Please log in to post an answer.</p>
+        {% endif %}
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    
+    const likeForms = document.querySelectorAll('.like-answer-form');
+    likeForms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            const button = event.target.querySelector('button');
+            button.disabled = true; 
+            button.innerHTML = "Liked";  
+        });
+    });
+});
+    </script>
+</body>
+</html>
+{% endblock %}

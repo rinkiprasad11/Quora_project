@@ -1,0 +1,43 @@
+{% extends 'forum/base.html' %}
+{% load static %}
+
+{% block title %}Home - Quora-like Platform{% endblock %}
+
+{% block content %}
+
+<h1>Questions</h1>
+<ul class="questions-list">
+    {% for question in questions %}
+    <div class="question">
+        <h2>{{ question.title }}</h2>
+        <p>{{ question.description }}</p>
+
+       
+        {% for answer in question.answer_set.all %}
+            <div class="answer">
+                <p>{{ answer.content }}</p>
+                <p><strong>Answered by: {{ answer.author.username }}</strong></p>
+                <p>{{ answer.like_set.count }} Likes</p>
+
+                {% if user.is_authenticated %}
+                    {% if answer.has_liked %}
+                        <button disabled>Liked</button>
+                    {% else %}
+                        <form action="{% url 'like_answer' answer_id=answer.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit">Like</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <p>Please log in to like answers.</p>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>No answers yet.</p>
+        {% endfor %}
+    </div>
+    {% empty %}
+        <p>No questions found.</p>
+    {% endfor %}
+</ul>
+{% endblock %}
